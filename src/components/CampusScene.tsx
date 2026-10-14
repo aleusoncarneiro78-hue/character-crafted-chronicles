@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Billboard, Environment, Html, Lightformer, OrbitControls, useGLTF, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { characters, missions } from '@/lib/explorer';
+import { Button } from '@/components/ui/button';
 import buildingA from '@/assets/building-a.glb.asset.json';
 import buildingB from '@/assets/building-b.glb.asset.json';
 import buildingC from '@/assets/building-c.glb.asset.json';
@@ -39,7 +40,7 @@ function Ground() {
     <mesh position={[0, -0.075, 0]} rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[24, 23]} /><meshStandardMaterial map={texture} roughness={0.9} /></mesh>
     {([[-7, -5], [0, -7], [7, -5], [-7, 4], [7, 4]] as [number, number][]).map(([x, z], i) => <mesh key={i} position={[x, -0.03, z]} rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[6.2, 5.8]} /><meshStandardMaterial color={palette.lawn} roughness={1} /></mesh>)}
     <mesh rotation-x={-Math.PI / 2} position={[0, 0.015, 2]}><ringGeometry args={[2.05, 2.15, 64]} /><meshStandardMaterial color={palette.gold} /></mesh>
-    <Html position={[0, 0.03, 2]} transform rotation={[-Math.PI / 2, 0, 0]} scale={0.75}><div className="campus-emblem">J&F</div></Html>
+    <Html position={[0, 0.03, 2]} zIndexRange={[5, 0]} transform rotation={[-Math.PI / 2, 0, 0]} scale={0.75}><div className="campus-emblem">J&F</div></Html>
   </>;
 }
 function Student({ character, destination, paused, onArrival }: { character: number; destination: number | null; paused: boolean; onArrival: (id: number) => void }) {
@@ -58,7 +59,7 @@ function Student({ character, destination, paused, onArrival }: { character: num
   return <group ref={ref} position={[0, 0, 5]}>
     <Billboard position={[0, 1.3, 0]}><mesh><planeGeometry args={[1.0, 2.6]} /><meshBasicMaterial map={texture} transparent alphaTest={0.1} side={THREE.DoubleSide} /></mesh></Billboard>
     <mesh rotation-x={-Math.PI / 2} position-y={0.03}><ringGeometry args={[0.42, 0.52, 32]} /><meshBasicMaterial color={palette.gold} /></mesh>
-    <Html center position={[0, 3, 0]}><span className="player-tag">Você <span>◆</span></span></Html>
+    <Html center position={[0, 3, 0]} zIndexRange={[10, 0]}><span className="player-tag">Você <span>◆</span></span></Html>
   </group>;
 }
 function FrameCamera() {
@@ -77,7 +78,7 @@ export function CampusScene({ character, active, completed, started, paused, des
       <Suspense fallback={<Html center><div className="scene-loading">Abrindo o Instituto…</div></Html>}>
         {missions.map((m, i) => <group key={m.name}>
           <Model url={buildings[i] ?? buildingA.url} height={i === 2 ? 4.1 : 4.5} position={m.position} />
-          <Html center position={[m.position[0], 5.4, m.position[2]]} zIndexRange={[10, 0]}><button className={`location-label ${i === active ? 'active' : ''} ${completed.includes(i) ? 'complete' : ''}`} onClick={() => onVisit(i)} disabled={!started || paused || i > active}><span>{completed.includes(i) ? '✓' : String(i + 1).padStart(2, '0')}</span>{m.name}{i > active && <small>⌑</small>}</button></Html>
+          <Html center position={[m.position[0], 5.4, m.position[2]]} zIndexRange={[10, 0]}><Button variant="ghost" className={`location-label ${i === active ? 'active' : ''} ${completed.includes(i) ? 'complete' : ''}`} onClick={() => onVisit(i)} disabled={!started || paused || i > active}><span>{completed.includes(i) ? '✓' : String(i + 1).padStart(2, '0')}</span>{m.name}{i > active && <small>⌑</small>}</Button></Html>
         </group>)}
         {([[-10, -9], [10, -9], [-11, 0], [11, 0], [-10, 9], [10, 9], [-3, -10], [4, -10]] as [number, number][]).map(([x, z], i) => <Model key={i} url={tree.url} height={2.9 + i % 2 * 0.6} position={[x, 0, z]} />)}
         <Student character={character} destination={destination} paused={paused} onArrival={onArrival} />
