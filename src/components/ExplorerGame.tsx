@@ -1,0 +1,54 @@
+import { useEffect, useState } from 'react';
+import { ArrowRight, ArrowUpRight, BookOpen, Check, ChevronRight, Compass, Flag, GraduationCap, Map, Notebook, Pause, Play, RotateCcw, Sparkles, Trophy, Users, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CampusScene } from './CampusScene';
+import { characters, correctScore, medalFor, missions, wrongScore } from '@/lib/explorer';
+
+const icons = [Compass, BookOpen, Users, Notebook, GraduationCap];
+export function ExplorerGame() {
+  const [character, setCharacter] = useState(0);
+  const [started, setStarted] = useState(false);
+  const [completed, setCompleted] = useState<number[]>([]);
+  const [score, setScore] = useState(0);
+  const [destination, setDestination] = useState<number | null>(null);
+  const [quiz, setQuiz] = useState<number | null>(null);
+  const [question, setQuestion] = useState(-1);
+  const [answer, setAnswer] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const active = Math.min(completed.length, 4);
+  const mission = missions[active];
+  const current = quiz !== null ? missions[quiz] : null;
+  const currentQuestion = current?.questions[question];
+  const correct = currentQuestion && answer === currentQuestion.answer;
+  const medal = medalFor(score);
+  useEffect(() => { const handle = (e: KeyboardEvent) => { if (e.key === 'Escape' && started && quiz === null && !finished) setPaused(p => !p); }; window.addEventListener('keydown', handle); return () => window.removeEventListener('keydown', handle); }, [started, quiz, finished]);
+  function visit(id: number) { if (!started || paused || id !== active || finished || quiz !== null) return; setDestination(id); }
+  function arrival(id: number) { setQuiz(id); setQuestion(-1); setAnswer(null); setDestination(null); }
+  function respond(id: number) { if (answer !== null || !currentQuestion) return; setAnswer(id); setScore(s => id === currentQuestion.answer ? correctScore(s) : wrongScore(s)); }
+  function next() {
+    if (!correct) { setAnswer(null); return; }
+    if (question < 1) { setQuestion(q => q + 1); setAnswer(null); return; }
+    if (quiz === null) return;
+    setCompleted(c => [...c, quiz]); setQuiz(null); setAnswer(null);
+    if (quiz === 4) setFinished(true);
+  }
+  function reset() { setStarted(false); setCompleted([]); setScore(0); setDestination(null); setQuiz(null); setQuestion(-1); setAnswer(null); setFinished(false); setPaused(false); }
+  return <div className="explorer-app">
+    <header className="app-header"><a href="/" className="brand"><span className="brand-mark">J&F<span>EX</span></span><span>INSTITUTO J&F<small>EXPLORER</small></span></a><div className="header-center"><span className="live-dot" /> MISSÃO INSTITUTO ABERTO</div><div className="header-actions"><Button variant="ghost" onClick={() => setShowMap(true)}><Map /> <span>Mapa do Instituto</span></Button><span className="header-separator" /><span className="edition">EDIÇÃO ESCOLAR <ArrowUpRight size={14} /></span></div></header>
+    <main>
+      <section className="page-heading"><div><div className="eyebrow"><span>EXPLORE. DESCUBRA. CONQUISTE.</span><span className="edition-badge">AVENTURA 3D</span></div><h1>Missão J&F <span>Explorer</span><span className="title-star">✳</span></h1><p>Seu primeiro dia. Um mapa perdido. Um Instituto inteiro para descobrir.</p></div><div className="scoreboard"><div><Trophy /><span>PONTUAÇÃO<strong>{score.toString().padStart(3, '0')} <small>pts</small></strong></span></div><span className="score-divider" /><div><Flag /><span>ÁREAS DESCOBERTAS<strong>{completed.length}<small> / 5</small></strong></span></div></div></section>
+      <section className="game-world">
+        <aside className="mission-sidebar"><div className="section-label"><Compass size={15} /> SEU CAMINHO <span>01 — 05</span></div><h2>{started ? 'A aventura começou.' : 'Toda jornada tem\num primeiro passo.'}</h2><p className="mission-intro">Encontre as pistas, descubra as regras e conquiste seu notebook oficial.</p><div className="mission-list">{missions.map((m, i) => { const Icon = icons[i]; const done = completed.includes(i); return <div key={m.name} className={`mission-item ${i === active ? 'current' : ''} ${done ? 'done' : ''}`}><span className="mission-number">{done ? <Check size={14} /> : `0${i + 1}`}</span><Icon size={18} /><span><strong>{m.name}</strong><small>{done ? 'Missão concluída' : i === active ? 'Próxima descoberta' : m.topic}</small></span>{i === active && <ChevronRight size={16} />}</div>; })}</div><div className="current-goal"><span className="goal-label"><span className="live-dot" /> {started ? 'MISSÃO ATUAL' : 'SUA PRIMEIRA MISSÃO'}</span><strong>{mission.name}</strong><p>{started ? 'Uma nova pista espera por você.' : 'Sua agenda sumiu. A recepção pode ajudar você a encontrar o caminho.'}</p>{started && !finished && <Button className="visit-button" disabled={destination !== null || paused} onClick={() => visit(active)}>{destination !== null ? 'A caminho…' : `Explorar ${mission.name.toLowerCase()}`}<ArrowRight /></Button>}</div><div className="sidebar-bottom"><Sparkles size={15} /> Cada descoberta deixa você mais perto.</div></aside>
+        <div className="world-view"><CampusScene character={character} active={active} completed={completed} started={started} paused={paused || quiz !== null || finished} destination={destination} onVisit={visit} onArrival={arrival} /><div className="world-top"><span className="world-chip"><span className="live-dot" /> {started ? 'EXPLORAÇÃO EM ANDAMENTO' : 'SEU NOVO MUNDO'}</span><Button variant="secondary" size="icon" title={paused ? 'Continuar aventura' : 'Pausar aventura'} aria-label={paused ? 'Continuar aventura' : 'Pausar aventura'} disabled={!started || finished} onClick={() => setPaused(p => !p)}>{paused ? <Play /> : <Pause />}</Button></div><div className="world-bottom"><span><Map size={14} /> {completed.length} de 5 áreas exploradas</span><span className="world-reward"><Trophy size={14} /> Próximo destino: medalha de ouro</span></div></div>
+      </section>
+      <section className="character-section"><div className="character-heading"><span className="section-label"><Users size={15} /> {started ? 'SEU EXPLORADOR' : 'ESCOLHA SEU EXPLORADOR'}</span><h2>{started ? 'Uma missão. Muitas descobertas.' : 'Quem vai viver essa aventura?'}</h2></div><div className="character-options">{characters.map((c, i) => <Button key={i} variant="ghost" aria-label={`Selecionar ${c.name}`} aria-pressed={character === i} disabled={started} onClick={() => setCharacter(i)} className={`character-option ${character === i ? 'selected' : ''}`}><div className="portrait"><img src={c.image} alt={c.name} /></div><span><strong>{c.name}</strong><small>{character === i ? 'Pronto para explorar' : 'Selecionar personagem'}</small></span>{character === i && <span className="selected-check"><Check size={12} /></span>}</Button>)}</div><Button className="start-button" onClick={() => { if (started) visit(active); else setStarted(true); }} disabled={finished || paused || destination !== null}>{started ? 'Continuar missão' : 'Começar aventura'}<ArrowRight /></Button></section>
+      <footer><span>Instituto J&F <span>·</span> Centro de Educação para os Negócios</span><span><GraduationCap size={14} /> O conhecimento é a sua melhor conquista.</span></footer>
+    </main>
+    {quiz !== null && current && <div className="modal-scrim"><section className="quiz-modal" role="dialog" aria-modal="true" aria-label={`Missão ${current.name}`}><div className="modal-kicker"><span>MISSÃO 0{quiz + 1} / 05</span><span>{question < 0 ? 'PISTA ENCONTRADA' : `QUIZ ${question + 1} / 2`}</span></div><div className="quiz-icon">{question < 0 ? <Compass /> : <BookOpen />}</div><h2>{question < 0 ? `Bem-vindo à ${current.name.toLowerCase()}!` : currentQuestion?.text}</h2>{question < 0 ? <><p className="clue-text">{current.clue}</p><Button className="modal-cta" onClick={() => setQuestion(0)}>Resolver o quiz<ArrowRight /></Button></> : <><div className="answers">{currentQuestion?.options.map((option, i) => <Button key={i} variant="outline" className={`answer ${answer === i ? (correct ? 'correct' : 'incorrect') : ''}`} disabled={answer !== null} onClick={() => respond(i)}><span>{String.fromCharCode(65 + i)}</span>{option}{answer === i && (correct ? <Check /> : <X />)}</Button>)}</div>{answer !== null && <div className={`feedback ${correct ? 'success' : 'error'}`}><strong>{correct ? 'Boa descoberta! +100 pontos' : 'Quase! −25 pontos'}</strong><p>{currentQuestion?.explanation}</p><Button onClick={next}>{correct ? question === 1 ? 'Concluir missão' : 'Próxima pergunta' : 'Tentar novamente'}<ArrowRight /></Button></div>}</>}<div className="quiz-footer"><Trophy size={14} /> Cada resposta certa vale uma nova descoberta.</div></section></div>}
+    {paused && quiz === null && <div className="modal-scrim"><section className="small-modal" role="dialog" aria-modal="true" aria-label="Aventura pausada"><Pause className="modal-symbol" /><h2>Uma pausa na aventura.</h2><p>Seu caminho está aqui, esperando por você.</p><Button onClick={() => setPaused(false)}><Play /> Continuar aventura</Button><Button variant="ghost" onClick={reset}><RotateCcw /> Recomeçar</Button></section></div>}
+    {showMap && <div className="modal-scrim"><section className="map-modal" role="dialog" aria-modal="true" aria-label="Mapa do Instituto"><div className="modal-top"><span className="section-label"><Map size={16} /> MAPA DO INSTITUTO</span><Button size="icon" variant="ghost" aria-label="Fechar mapa" onClick={() => setShowMap(false)}><X /></Button></div><h2>Cinco lugares. Um novo começo.</h2>{missions.map((m, i) => <div className="map-row" key={i}><span>0{i + 1}</span><div><strong>{m.name}</strong><p>{m.clue.split('. ')[0]}.</p></div>{completed.includes(i) && <Check />}</div>)}</section></div>}
+    {finished && <div className="modal-scrim"><section className="result-modal" role="dialog" aria-modal="true" aria-label="Resultado da aventura"><span className="section-label">MISSÃO INSTITUTO ABERTO · CONCLUÍDA</span><div className={`medal ${medal.className}`}><Trophy size={48} /><span>{medal.tier}</span></div><h2>Medalha de {medal.name}!</h2><p>{medal.text}</p><div className="result-stats"><strong>{score}<small>PONTOS</small></strong><strong>5/5<small>ÁREAS EXPLORADAS</small></strong></div>{medal.tier !== 'F' && <div className="notebook-reward"><Notebook /><span><strong>Notebook oficial desbloqueado</strong><small>Seu primeiro dia está completo.</small></span><Check /></div>}<Button className="modal-cta" onClick={reset}><RotateCcw /> Jogar novamente</Button></section></div>}
+  </div>;
+}
