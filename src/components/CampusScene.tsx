@@ -37,19 +37,19 @@ function Ground() {
   return <>
     <mesh position={[0, -0.5, 0]} receiveShadow><boxGeometry args={[24, 0.8, 23]} /><meshStandardMaterial color={palette.edge} roughness={1} /></mesh>
     <mesh position={[0, -0.075, 0]} rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[24, 23]} /><meshStandardMaterial map={texture} roughness={0.9} /></mesh>
-    {[[-7, -5], [0, -7], [7, -5], [-7, 4], [7, 4]].map(([x, z], i) => <mesh key={i} position={[x, -0.03, z]} rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[6.2, 5.8]} /><meshStandardMaterial color={palette.lawn} roughness={1} /></mesh>)}
+    {([[-7, -5], [0, -7], [7, -5], [-7, 4], [7, 4]] as [number, number][]).map(([x, z], i) => <mesh key={i} position={[x, -0.03, z]} rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[6.2, 5.8]} /><meshStandardMaterial color={palette.lawn} roughness={1} /></mesh>)}
     <mesh rotation-x={-Math.PI / 2} position={[0, 0.015, 2]}><ringGeometry args={[2.05, 2.15, 64]} /><meshStandardMaterial color={palette.gold} /></mesh>
     <Html position={[0, 0.03, 2]} transform rotation={[-Math.PI / 2, 0, 0]} scale={0.75}><div className="campus-emblem">J&F</div></Html>
   </>;
 }
 function Student({ character, destination, paused, onArrival }: { character: number; destination: number | null; paused: boolean; onArrival: (id: number) => void }) {
   const ref = useRef<THREE.Group>(null);
-  const texture = useTexture(characters[character].image);
+  const texture = useTexture(characters[character]?.image ?? characters[0]?.image ?? '');
   const arrived = useRef<number | null>(null);
   useEffect(() => { arrived.current = null; }, [destination]);
   useFrame(({ clock }, delta) => {
     if (!ref.current || paused || destination === null || arrived.current === destination) return;
-    const m = missions[destination]; const target = new THREE.Vector3(m.position[0], 0, m.position[2] + 2.6);
+    const m = missions[destination]; if (!m) return; const target = new THREE.Vector3(m.position[0], 0, m.position[2] + 2.6);
     const distance = ref.current.position.distanceTo(target);
     if (distance < 0.12) { arrived.current = destination; ref.current.position.y = 0; onArrival(destination); return; }
     const step = Math.min(distance, Math.min(delta, 0.05) * 7);
@@ -76,10 +76,10 @@ export function CampusScene({ character, active, completed, started, paused, des
       <FrameCamera /><Ground />
       <Suspense fallback={<Html center><div className="scene-loading">Abrindo o Instituto…</div></Html>}>
         {missions.map((m, i) => <group key={m.name}>
-          <Model url={buildings[i]} height={i === 2 ? 4.1 : 4.5} position={m.position} />
+          <Model url={buildings[i] ?? buildingA.url} height={i === 2 ? 4.1 : 4.5} position={m.position} />
           <Html center position={[m.position[0], 5.4, m.position[2]]} zIndexRange={[10, 0]}><button className={`location-label ${i === active ? 'active' : ''} ${completed.includes(i) ? 'complete' : ''}`} onClick={() => onVisit(i)} disabled={!started || paused || i > active}><span>{completed.includes(i) ? '✓' : String(i + 1).padStart(2, '0')}</span>{m.name}{i > active && <small>⌑</small>}</button></Html>
         </group>)}
-        {[[-10, -9], [10, -9], [-11, 0], [11, 0], [-10, 9], [10, 9], [-3, -10], [4, -10]].map(([x, z], i) => <Model key={i} url={tree.url} height={2.9 + i % 2 * 0.6} position={[x, 0, z]} />)}
+        {([[-10, -9], [10, -9], [-11, 0], [11, 0], [-10, 9], [10, 9], [-3, -10], [4, -10]] as [number, number][]).map(([x, z], i) => <Model key={i} url={tree.url} height={2.9 + i % 2 * 0.6} position={[x, 0, z]} />)}
         <Student character={character} destination={destination} paused={paused} onArrival={onArrival} />
       </Suspense>
       <OrbitControls target={[0, 0, 0]} enablePan={false} enableZoom={false} minPolarAngle={0.65} maxPolarAngle={1.1} minAzimuthAngle={0.25} maxAzimuthAngle={0.95} enableRotate={!paused} />
