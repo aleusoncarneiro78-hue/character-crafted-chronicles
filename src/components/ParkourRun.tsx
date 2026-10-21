@@ -25,7 +25,7 @@ function buildCourse(level: number): Platform[] {
   return list;
 }
 
-type Keys = Record<string, boolean>;
+type Keys = { left?: boolean; right?: boolean; forward?: boolean; back?: boolean; jump?: boolean; [k: string]: boolean | undefined };
 
 function Runner({ course, character, keys, onGoal, onFall }: { course: Platform[]; character: number; keys: React.MutableRefObject<Keys>; onGoal: () => void; onFall: () => void }) {
   const ref = useRef<THREE.Group>(null);
@@ -90,7 +90,7 @@ export function ParkourRun({ target, character, onComplete }: { target: number; 
     window.addEventListener('keydown', down); window.addEventListener('keyup', up);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
   }, []);
-  useEffect(() => { if (won) { const t = setTimeout(onComplete, 1200); return () => clearTimeout(t); } }, [won, onComplete]);
+  useEffect(() => { if (!won) return undefined; const t = setTimeout(onComplete, 1200); return () => clearTimeout(t); }, [won, onComplete]);
   const hold = (k: string) => ({ onPointerDown: () => { keys.current[k] = true; }, onPointerUp: () => { keys.current[k] = false; }, onPointerLeave: () => { keys.current[k] = false; } });
   return <div className="parkour-overlay" role="dialog" aria-label="Parkour até a próxima missão">
     <Canvas shadows camera={{ position: [0, 4, 8], fov: 60 }} dpr={[1, 1.75]}>
