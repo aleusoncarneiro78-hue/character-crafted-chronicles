@@ -290,3 +290,14 @@ footer > span { display:flex; align-items:center; gap:7px; }
 .modal-scrim.quiz-scrim { background-color: transparent; background-size: cover; background-position: center; backdrop-filter: none; }
 .quiz-scrim::before { content: ''; position: fixed; inset: 0; background: color-mix(in oklab, var(--foreground) 35%, transparent); }
 .quiz-scrim > .quiz-modal { position: relative; z-index: 1; }
+
+.parkour-overlay { position: fixed; inset: 0; z-index: 60; background: var(--background); }
+.parkour-hud { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 12px 16px; border-radius: 16px; background: color-mix(in oklab, var(--card) 88%, transparent); color: var(--foreground); box-shadow: 0 8px 24px color-mix(in oklab, var(--foreground) 15%, transparent); }
+.parkour-hud p { margin: 0; flex: 1; min-width: 200px; }
+.parkour-tag { font-weight: 800; letter-spacing: .08em; font-size: 12px; color: var(--primary); }
+.parkour-falls { font-weight: 700; }
+.parkour-win { position: absolute; inset: 0; display: grid; place-items: center; font-size: clamp(32px, 6vw, 64px); font-weight: 800; color: var(--foreground); pointer-events: none; }
+.parkour-pad { position: absolute; bottom: 20px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: end; pointer-events: none; }
+.parkour-pad > * { pointer-events: auto; }
+.parkour-pad > div { display: flex; gap: 6px; }
+.parkour-pad button { min-width: 52px; min-height: 52px; touch-action: none; user-select: none; }
