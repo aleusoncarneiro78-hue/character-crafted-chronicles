@@ -9,6 +9,7 @@ import buildingB from '@/assets/building-b.glb.asset.json';
 import buildingC from '@/assets/building-c.glb.asset.json';
 import buildingD from '@/assets/building-d.glb.asset.json';
 import buildingH from '@/assets/building-h.glb.asset.json';
+import { places } from '@/lib/places';
 import tree from '@/assets/tree_oak.glb.asset.json';
 
 const buildings = [buildingA.url, buildingB.url, buildingC.url, buildingD.url, buildingH.url];
@@ -26,6 +27,18 @@ function Model({ url, height, position }: { url: string; height: number; positio
     return copy;
   }, [scene, height]);
   return <group position={position}><primitive object={object} /></group>;
+}
+function PhotoPlace({ url, position }: { url: string; position: [number, number, number] }) {
+  const texture = useTexture(url);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const img = texture.image as { width?: number; height?: number } | undefined;
+  const ratio = img?.width && img?.height ? img.width / img.height : 4 / 3;
+  const h = 3.6, w = Math.min(h * ratio, 5.6), hh = w / ratio;
+  return <group position={position}>
+    <mesh position={[0, 0.15, 0]} castShadow receiveShadow><boxGeometry args={[w + 0.6, 0.3, 1.4]} /><meshStandardMaterial color={palette.ink} roughness={0.8} /></mesh>
+    <mesh position={[0, hh / 2 + 0.45, 0]} castShadow><boxGeometry args={[w + 0.3, hh + 0.3, 0.2]} /><meshStandardMaterial color={palette.white} roughness={0.6} /></mesh>
+    <mesh position={[0, hh / 2 + 0.45, 0.11]}><planeGeometry args={[w, hh]} /><meshBasicMaterial map={texture} toneMapped={false} /></mesh>
+  </group>;
 }
 function Ground() {
   const texture = useMemo(() => {
@@ -77,7 +90,7 @@ export function CampusScene({ character, active, completed, started, paused, des
       <FrameCamera /><Ground />
       <Suspense fallback={<Html center><div className="scene-loading">Abrindo o Instituto…</div></Html>}>
         {missions.map((m, i) => <group key={m.name}>
-          <Model url={buildings[i] ?? buildingA.url} height={i === 2 ? 4.1 : 4.5} position={m.position} />
+          {places[i] ? <PhotoPlace url={places[i]} position={m.position} /> : <Model url={buildings[i] ?? buildingA.url} height={4.5} position={m.position} />}
           <Html center position={[m.position[0], 5.4, m.position[2]]} zIndexRange={[10, 0]}><Button variant="ghost" className={`location-label ${i === active ? 'active' : ''} ${completed.includes(i) ? 'complete' : ''}`} onClick={() => onVisit(i)} disabled={!started || paused || i > active}><span>{completed.includes(i) ? '✓' : String(i + 1).padStart(2, '0')}</span>{m.name}{i > active && <small>⌑</small>}</Button></Html>
         </group>)}
         {([[-10, -9], [10, -9], [-11, 0], [11, 0], [-10, 9], [10, 9], [-3, -10], [4, -10]] as [number, number][]).map(([x, z], i) => <Model key={i} url={tree.url} height={2.9 + i % 2 * 0.6} position={[x, 0, z]} />)}
