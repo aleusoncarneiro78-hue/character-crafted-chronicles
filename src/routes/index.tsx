@@ -1,14 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ExplorerGame } from '@/components/ExplorerGame';
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({ meta: [
-    { title: 'Missão J&F Explorer — Sua aventura no Instituto' },
-    { name: 'description', content: 'Explore cinco ambientes do Instituto J&F em uma aventura 3D, encontre pistas e conquiste sua medalha.' },
-    { property: 'og:title', content: 'Missão J&F Explorer — Sua aventura no Instituto' },
-    { property: 'og:description', content: 'Um mapa perdido, cinco missões e um novo começo. Descubra o Instituto J&F.' },
+    { title: 'Missão J&F Explorer — Entrar na aventura' },
+    { name: 'description', content: 'Entre na sua conta e continue sua aventura 3D pelo Instituto J&F.' },
+    { property: 'og:title', content: 'Missão J&F Explorer — Entrar na aventura' },
+    { property: 'og:description', content: 'Cinco missões, parkour 3D e medalhas no Instituto J&F.' },
     { property: 'og:type', content: 'website' },
     { name: 'twitter:card', content: 'summary_large_image' },
   ] }),
-  component: ExplorerGame,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    throw redirect({ to: data.session ? "/play" : "/auth" });
+  },
 });
