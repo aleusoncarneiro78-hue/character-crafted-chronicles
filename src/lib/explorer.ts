@@ -2,12 +2,14 @@ import student0 from '@/assets/student-0.asset.json';
 import student1 from '@/assets/student-1.asset.json';
 import student2 from '@/assets/student-2.asset.json';
 import student3 from '@/assets/student-3.asset.json';
+import student4 from '@/assets/student-4.asset.json';
 
 export const characters = [
   { name: 'Explorador 01', image: student0.url, trait: 'Cada pista, uma descoberta.' },
   { name: 'Explorador 02', image: student1.url, trait: 'Pronto para o primeiro dia.' },
   { name: 'Exploradora 03', image: student2.url, trait: 'Curiosidade que abre portas.' },
   { name: 'Exploradora 04', image: student3.url, trait: 'Uma nova aventura começa.' },
+  { name: 'Explorador 05', image: student4.url, trait: 'Coragem para cada salto.' },
 ];
 export interface Question { text: string; options: string[]; answer: number; explanation: string }
 export interface Mission { name: string; topic: string; position: [number, number, number]; clue: string; questions: Question[] }

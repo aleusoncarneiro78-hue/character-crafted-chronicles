@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ExplorerGame } from '@/components/ExplorerGame';
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/play")({
   ssr: false,
   head: () => ({ meta: [
     { title: 'Missão J&F Explorer — Sua aventura no Instituto' },

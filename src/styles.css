@@ -227,7 +227,7 @@ h1 > span:first-child { color:var(--primary); }
 .scene-loading { white-space:nowrap; background:var(--surface); padding:12px; border-radius:5px; font-size:12px; }
 .character-section { display:grid; grid-template-columns:245px 1fr 190px; align-items:center; gap:15px; padding:29px 0 31px; border-bottom:1px solid var(--border); }
 .character-heading h2 { font-size:17px; font-weight:500; margin:9px 0 0; }
-.character-options { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.character-options { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
 .character-option { position:relative; height:76px; padding:7px; justify-content:flex-start; border:1px solid var(--border); gap:8px; overflow:hidden; background:var(--surface); }
 .character-option.selected { border-color:var(--primary); background:var(--forest-soft); }
 .character-option:disabled { opacity:1; }

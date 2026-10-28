@@ -85,7 +85,7 @@ export function ParkourRun({ target, character, onComplete }: { target: number; 
   const [falls, setFalls] = useState(0);
   const [won, setWon] = useState(false);
   useEffect(() => {
-    const set = (v: boolean) => (e: KeyboardEvent) => { const k = keyMap[e.key]; if (k) { keys.current[k] = v; e.preventDefault(); } };
+    const set = (v: boolean) => (e: KeyboardEvent) => { const k = keyMap[e.key]; if (k) { keys.current[k] = v; if (k === 'forward' && (e.key === 'w' || e.key === 'W')) keys.current.jump = v; e.preventDefault(); } };
     const down = set(true), up = set(false);
     window.addEventListener('keydown', down); window.addEventListener('keyup', up);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
@@ -104,7 +104,7 @@ export function ParkourRun({ target, character, onComplete }: { target: number; 
     </Canvas>
     <div className="parkour-hud">
       <span className="parkour-tag">PARKOUR · RUMO À {missions[target]?.name.toUpperCase()}</span>
-      <p>Chegue ao anel dourado! <b>Setas/WASD</b> para mover, <b>Espaço</b> para pular.</p>
+      <p>Chegue ao anel dourado! <b>Setas/WASD</b> para mover, <b>Espaço</b> ou <b>W</b> para pular.</p>
       <span className="parkour-falls">Quedas: {falls}</span>
       {falls >= 3 && !won && <Button variant="outline" size="sm" onClick={onComplete}>Pular parkour</Button>}
     </div>
